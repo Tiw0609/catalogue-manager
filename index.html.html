@@ -517,11 +517,13 @@ async function init(){
   const{data:{session}}=await sb.auth.getSession();
   if(!session){showLoading(false);document.getElementById('auth-screen').style.display='flex';return;}
   currentUser=session.user;
-  await loadProfile();
-  await loadCats();
-  await loadProducts();
-  applyRoleUI();
-  document.getElementById('logo-input').value=localStorage.getItem(LS_NAME)||'PD-2 Catalogue';
+  await startApp();
+}
+
+async function startApp(){
+  showLoading(true);
+  await loadProfile();await loadCats();await loadProducts();applyRoleUI();
+  document.getElementById('logo-input').value=localStorage.getItem(LS_NAME)||'S&T';
   document.title=document.getElementById('logo-input').value;
   showLoading(false);
   document.getElementById('auth-screen').style.display='none';
@@ -536,14 +538,14 @@ async function loadProfile(){
 
 function applyRoleUI(){
   const r=currentProfile.role;
-  const roleLabel={'admin':'Admin','editor':'Editor','viewer':'Viewer'}[r]||r;
-  const roleClass={'admin':'rb-admin','editor':'rb-editor','viewer':'rb-viewer'}[r]||'rb-viewer';
-  document.getElementById('user-pill').innerHTML=`<span>${currentProfile.email||currentUser.email}</span><span class="role-badge ${roleClass}">${roleLabel}</span>`;
+  const lbl={'admin':'Admin','editor':'Editor','viewer':'Viewer'}[r]||r;
+  const cls={'admin':'rb-admin','editor':'rb-editor','viewer':'rb-viewer'}[r]||'rb-viewer';
+  document.getElementById('user-pill').innerHTML=`<span>${currentProfile.email||currentUser.email}</span><span class="role-badge ${cls}">${lbl}</span>`;
   document.getElementById('btn-add').style.display=canEdit()?'':'none';
   document.getElementById('btn-import').style.display=canEdit()?'':'none';
   document.getElementById('btn-usermgr').style.display=isAdmin()?'':'none';
   document.getElementById('btn-catmgr').style.display=canEdit()?'':'none';
-  document.getElementById('logo-badge').textContent=roleLabel.toUpperCase();
+  document.getElementById('logo-badge').textContent=lbl.toUpperCase();
 }
 
 /* ══════════════════════════════════════
