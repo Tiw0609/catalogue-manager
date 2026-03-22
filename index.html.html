@@ -471,7 +471,7 @@ function buildCatOpts(sel){return cats.filter(c=>c!=='ทั้งหมด').ma
 /* ══════════════════════════════════════
    AUTH
 ══════════════════════════════════════ */
-let authMode = 'login';
+let authMode='login';
 function switchTab(m){
   authMode=m;
   document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&m==='login')||(i===1&&m==='register')));
@@ -482,7 +482,6 @@ function switchTab(m){
 }
 function showAuthErr(msg){const el=document.getElementById('auth-err');el.textContent=msg;el.style.display='block';}
 function showAuthOk(msg){const el=document.getElementById('auth-ok');el.textContent=msg;el.style.display='block';}
-
 async function doAuth(){
   const email=document.getElementById('auth-email').value.trim();
   const pass=document.getElementById('auth-pass').value;
@@ -492,23 +491,24 @@ async function doAuth(){
   const btn=document.getElementById('auth-btn');btn.disabled=true;btn.textContent='กำลังดำเนินการ...';
   try{
     if(authMode==='login'){
-      const{error}=await sb.auth.signInWithPassword({email,password:pass});
-      if(error)throw error;
+      const res=await sb.auth.signInWithPassword({email,password:pass});
+      if(res.error)throw res.error;
+      // Login สำเร็จ — เรียก startApp โดยตรงไม่ต้องรอ onAuthStateChange
+      currentUser=res.data?.user || (await sb.auth.getUser()).data?.user;
+      btn.textContent='กำลังโหลด...';
+      await startApp();
     } else {
       const{error}=await sb.auth.signUp({email,password:pass});
       if(error)throw error;
-      showAuthOk('สมัครสำเร็จ! กรุณาตรวจสอบ email เพื่อยืนยัน แล้วล็อกอินได้เลย');
-      switchTab('login');
-      btn.disabled=false;btn.textContent='เข้าสู่ระบบ';
-      return;
+      showAuthOk('สมัครสำเร็จ! ตรวจสอบ email แล้วล็อกอินได้เลย');
+      switchTab('login');btn.disabled=false;btn.textContent='เข้าสู่ระบบ';return;
     }
-  }catch(e){showAuthErr(e.message||'เกิดข้อผิดพลาด');btn.disabled=false;btn.textContent=authMode==='login'?'เข้าสู่ระบบ':'สมัครสมาชิก';}
+  }catch(e){
+    showAuthErr(e.message||'เกิดข้อผิดพลาด');
+    btn.disabled=false;btn.textContent=authMode==='login'?'เข้าสู่ระบบ':'สมัครสมาชิก';
+  }
 }
-
-async function signOut(){
-  await sb.auth.signOut();
-  location.reload();
-}
+async function signOut(){await sb.auth.signOut();location.reload();}
 
 /* ══════════════════════════════════════
    INIT / SESSION
