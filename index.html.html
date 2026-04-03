@@ -523,7 +523,7 @@ async function init(){
 async function startApp(){
   showLoading(true);
   await loadProfile();await loadCats();await loadProducts();applyRoleUI();
-  document.getElementById('logo-input').value=localStorage.getItem(LS_NAME)||'S&T';
+  document.getElementById('logo-input').value=localStorage.getItem(LS_NAME)||'ILLUSPACE';
   document.title=document.getElementById('logo-input').value;
   showLoading(false);
   document.getElementById('auth-screen').style.display='none';
